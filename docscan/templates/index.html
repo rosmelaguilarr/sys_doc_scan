@@ -4,23 +4,30 @@
 
 <main class="container">
     <div class="row">
-        <section class="col-md-6 offset-md-3 mt-5">
-            <h1 class="display-6 text-center">
-                Sistema de Digitalización de Documentos
-            </h1>
-            <div class="text-center">
-                <i class="bi bi-file-earmark-pdf-fill" style="font-size: 3.5rem ;color: #B51308;">
-                </i>
-            </div>
-            <div class="mt-5 d-flex justify-content-center">
-                <a class="btn btn-primary flex-fill mx-2" href="{% url 'registerdoc' %}">
-                    <i class="bi bi-file-plus-fill mx-1" style="font-size: 1.2rem; color: #fff;"></i>
-                    Registrar</a>
-                <a class="btn btn-primary flex-fill mx-2" href="{% url 'searchdoc' %}">
-                    <i class="bi bi-search mx-1" style="font-size: 1.2rem; color: #fff;"></i>
-                    Buscar</a>
-            </div>
-        </section>
+        <div class="position-absolute top-50 start-50 translate-middle">
+            <section class="col-md-6 offset-md-3">
+                <h1 class="display-6 text-center">
+                    Sistema de Digitalización de Documentos
+                </h1>
+                <div class="text-center">
+                    <i class="bi bi-file-earmark-pdf-fill" style="font-size: 3.5rem ;color: #B51308;">
+                    </i>
+                </div>
+                <div class="mt-5 d-flex justify-content-center">
+                    <a class="btn btn-primary flex-fill mx-2" href="{% url 'registerdoc' %}">
+                        <i class="bi bi-file-plus-fill mx-1" style="font-size: 1.2rem; color: #fff;"></i>
+                        Registrar</a>
+                    <a class="btn btn-primary flex-fill mx-2" href="{% url 'searchdoc' %}">
+                        <i class="bi bi-search mx-1" style="font-size: 1.2rem; color: #fff;"></i>
+                        Buscar</a>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="position-absolute top-100 start-50 translate-middle text-center" >
+        <p class="fs-6 mb-1 fst-italic fw-semi-bold">Dirección Regional de Transportes y Comunicaciones Apurímac</p>
+        <p class="fs-6 my-0 fst-italic">Oficina de Tecnología de Información y Sistemas</p>
     </div>
 </main>
 

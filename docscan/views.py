@@ -22,11 +22,10 @@ def signin(request):
         if user is None:
             return render(request, 'signin.html', {
                 'form': AuthenticationForm,
-                'error': 'Usuario o contraseña es incorrecto'})
+                'error': 'Usuario o contraseña incorrecto'})
         else:
             login(request, user)
             return redirect('home')
-
 
 def signup(request):
     if request.method == 'GET':
@@ -48,16 +47,13 @@ def signup(request):
             'form': UserCreationForm,
             'error': 'Las contraseñas no coinciden'})
 
-
 def home(request):
     return render(request, 'index.html')
-
 
 @login_required
 def signout(request):
     logout(request)
     return redirect('home')
-
 
 @login_required
 def registerdoc(request):
@@ -87,7 +83,6 @@ def registerdoc(request):
                 'error': 'Por favor escribir información válida',
             })
 
-
 @login_required
 def searchdoc(request):
 
@@ -107,7 +102,7 @@ def searchdoc(request):
             'documents': documents,
         })
 
-
+@login_required
 def updatedoc(request, doc_id):
     if request.method == 'GET':
         document = get_object_or_404(Document, pk=doc_id, user=request.user)
@@ -130,7 +125,7 @@ def updatedoc(request, doc_id):
             document.origin = request.POST["origin"]
             document.save()
 
-            messages.success(request, 'Documento actualizado')
+            messages.success(request, 'Documento actualizado con éxito')
             return redirect('searchdoc')
         
         except ValueError:
@@ -139,6 +134,7 @@ def updatedoc(request, doc_id):
                 'form': form,
                 'error': 'Error actualizado documento'})
 
+@login_required
 def deletedoc(request, doc_id):
     document = get_object_or_404(
                 Document, pk=doc_id, user=request.user)
@@ -147,9 +143,10 @@ def deletedoc(request, doc_id):
         os.remove(document.fileupload.path)
     
     document.delete()
-    messages.success(request, 'Documento Eliminado')
+    messages.success(request, 'Documento eliminado con éxito')
     return redirect('searchdoc')
 
+@login_required
 def previewdoc(request, doc_id):
     document = get_object_or_404(
                 Document, pk=doc_id, user=request.user)

@@ -17,7 +17,7 @@
 
             {% if 'ok' in request.GET %}
                 <div class="alert alert-success text-center" role="alert">
-                    Documento guardado con éxito!
+                    Documento registrado con éxito
                 </div>
                 <div class="mt-3 d-flex justify-content-center">
                     <a class="btn btn-primary flex-fill mx-2" href="{% url 'registerdoc' %}">
@@ -33,14 +33,14 @@
                     <button type="submit" class="btn btn-primary btn-registerdoc" >
                         Registrar</button>
                 </form>
+                <div class="d-flex justify-content-center my-3">
+                    <a class="btn btn-outline-primary btn-sm" href=" {% url 'searchdoc'%} ">
+                        <i class="bi bi-search" title="Buscar"></i>
+                        Buscar
+                    </a>
+                </div>
             {% endif %}
 
-            <div class="d-flex justify-content-center my-3">
-                <a class="btn btn-outline-primary btn-sm" href=" {% url 'searchdoc'%} ">
-                    <i class="bi bi-search" title="Buscar"></i>
-                    Buscar
-                </a>
-            </div>
         </section>
         
             

@@ -1,0 +1,37 @@
+{% extends 'layouts/nav.html' %}
+
+{% block content %}
+
+<main class="container">
+    <div class="row">
+        <section class="col-md-4 offset-md-4 mt-3">
+            <h1 class="text-center display-6">Registrarse</h1>
+            {% if error %}
+            <div class="alert alert-danger text-center" role="alert">
+            {{ error }}
+            </div>
+            {% endif %}
+           <form method="POST" class="card card-body">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="username">Usuario:</label>
+                <input type="text" name="username" id="username" 
+                class="form-control" placeholder="Escribe nombre de usuario">
+            </div>
+            <div class="mb-3">
+                <label for="password1">Contraseña:</label>
+                <input type="password" name="password1" id="password1" 
+                class="form-control" placeholder="Escribe una contraseña">
+            </div>
+            <div class="mb-3">
+                <label for="password2">Confirmar contraseña:</label>
+                <input type="password" name="password2" id="password2" 
+                class="form-control" placeholder="Confirma tu contraseña">
+            </div>
+            <button class="btn btn-primary">Registrarse</button>
+           </form>
+        </section>
+    </div>
+</main>
+
+{% endblock %}

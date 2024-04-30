@@ -9,6 +9,7 @@ from .models import Document
 from django.urls import reverse
 from django.contrib import messages
 import os
+import base64
 
 def signin(request):
     if request.method == 'GET':
@@ -97,10 +98,12 @@ def searchdoc(request):
         documents = Document.objects.filter(description__icontains=description, doctype__icontains=doctype,
                                             dateregister__icontains=dateregister, origin__icontains=origin, user=request.user)
 
-        return render(request, 'searchdoc.html', {
+        context = {
             'form': DocumentForm,
             'documents': documents,
-        })
+        }
+
+        return render(request, 'searchdoc.html', context)
 
 @login_required
 def updatedoc(request, doc_id):
@@ -148,9 +151,17 @@ def deletedoc(request, doc_id):
 
 @login_required
 def previewdoc(request, doc_id):
-    document = get_object_or_404(
-                Document, pk=doc_id, user=request.user)
-    
-    return render(request, 'previewdoc.html', {
-                'document': document,
-            })
+
+        document = get_object_or_404(
+        Document, pk=doc_id, user=request.user)
+
+        pdf_path = document.fileupload.path
+        with open(pdf_path, 'rb') as pdf_file:
+            # Convert pdf to a string
+            pdf_content = base64.b64encode(pdf_file.read()).decode()
+        
+        context = {
+            'pdf': pdf_content,
+        }
+
+        return render(request, "previewdoc.html", context)

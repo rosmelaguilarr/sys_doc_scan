@@ -55,35 +55,51 @@
 
             {% if documents.count > 0 %}
             <div class="card card-body">
-                <ul class="list-group list-group-flush">
-                    {% for document in documents %}
-                        <li class="list-group-item">
-                            <a class="btn btn-outline-primary btn-sm" href=" {% url 'updatedoc' document.id %} ">
-                                <i class="bi bi-pencil-fill" title="Editar"></i>
-                            </a>
 
-                            <a class="btn btn-outline-danger btn-sm" href=" {% url 'deletedoc' document.id %}" title="Eliminar">
-                                <i class="bi bi-trash-fill"></i>
-                            </a>
-
-                            <a class="btn btn-outline-primary btn-sm me-2" href="{% url 'previewdoc' document.id %}" title="Ver">
-                                <i class="bi bi-search"></i>
-                            </a>
-
-                            {{ document.fileupload }} - {{ document.doctype }} - {{ document.description }} - {{ document.origin }} - {{ document.dateregister }} - {{ document.id }} - {{ user.username }}
-                    {% endfor %}
-                </ul>
+                <table class="table">
+                    <thead>
+                        <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Acciones</th>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Descripción</th>
+                        <th scope="col">Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for document in documents %}
+                            <tr>
+                                <th scope="row"> {{ forloop.counter }} </th>
+                                <td>
+                                    <a class="btn btn-outline-primary btn-sm" href=" {% url 'updatedoc' document.id %} ">
+                                        <i class="bi bi-pencil-fill" title="Editar"></i>
+                                    </a>
+        
+                                    <a class="btn btn-outline-danger btn-sm" href=" {% url 'deletedoc' document.id %}" title="Eliminar">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+        
+                                    <a class="btn btn-outline-primary btn-sm me-2" href="{% url 'previewdoc' document.id %}" title="Ver">
+                                        <i class="bi bi-search"></i>
+                                    </a>
+                                </td>
+                                <td>
+                                    {% with file_path=document.fileupload %}
+                                        {% with file_name=file_path|cut:"/"|slice:"7:" %}
+                                            {{ file_name }}
+                                        {% endwith %}
+                                    {% endwith %}
+                                </td>
+                                <td> {{ document.description }} </td>
+                                <td> 
+                                    {{ document.dateregister|date:"d/m/Y" }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
             {% endif %}
-
-            <div class="d-flex justify-content-center my-3">
-                <a class="btn btn-outline-primary btn-sm" href=" {% url 'registerdoc'%} ">
-                    <i class="bi bi-file-plus-fill" title="Registrar"></i>
-                    Registrar
-                </a>
-            </div>
-            
-            
         </section>
     </div>
 </main>

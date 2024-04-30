@@ -28,17 +28,11 @@
                         Buscar</a>
                 </div>
             {% else %}
-                <form method="POST" enctype='multipart/form-data' class="card card-body form-registerdoc">
+                <form method="POST" enctype='multipart/form-data' class="card card-body form-registerdoc mb-5">
                     {% crispy form %}
                     <button type="submit" class="btn btn-primary btn-registerdoc" >
                         Registrar</button>
                 </form>
-                <div class="d-flex justify-content-center my-3">
-                    <a class="btn btn-outline-primary btn-sm" href=" {% url 'searchdoc'%} ">
-                        <i class="bi bi-search" title="Buscar"></i>
-                        Buscar
-                    </a>
-                </div>
             {% endif %}
 
         </section>

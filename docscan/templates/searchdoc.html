@@ -5,10 +5,8 @@
 <main class="container">
     <div class="row">
         <section class="col-md-12 mt-3">
-            
-
             <h1 class='text-center display-6'>Buscar documentos</h1>
-            <form method='POST' class="card card-body flex-row justify-content-between align-items-center" >
+            <form method='GET' class="card card-body flex-row justify-content-between align-items-center" >
                 {% csrf_token %}
                 <div class="mb-3">
                     <label for="doctype_search">Documento:</label>
@@ -43,39 +41,40 @@
                 Buscar</button>
             </form>
         </section>
-
-        {% comment %} Mostrar resultado de búsqueda {% endcomment %}
+        
         <section class="col-md-12 mt-3">
-            {% for msg in messages  %}
-                <div class="alert alert-success alert-dismissible text-center col-md-6 offset-md-3 fade show" role="alert">
-                    {{ msg }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
+            {% if messages %}
+                {% for msg in messages  %}
+                    <div class="alert alert-success py-2 d-flex" role="alert">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <div class="mx-auto">
+                            {{ msg }}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
 
-            {% if documents.count > 0 %}
             <div class="card card-body">
-
-                <table class="table">
+                <table class="table table-hover">
                     <thead>
                         <tr>
-                        <th scope="col">#</th>
                         <th scope="col">Acciones</th>
                         <th scope="col">Nombre</th>
+                        <th scope="col">Documento</th>
+                        <th scope="col">Orígen</th>
                         <th scope="col">Descripción</th>
                         <th scope="col">Fecha</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for document in documents %}
+                        {% for document in page_obj %}
                             <tr>
-                                <th scope="row"> {{ forloop.counter }} </th>
                                 <td>
                                     <a class="btn btn-outline-primary btn-sm" href=" {% url 'updatedoc' document.id %} ">
                                         <i class="bi bi-pencil-fill" title="Editar"></i>
                                     </a>
         
-                                    <a class="btn btn-outline-danger btn-sm" href=" {% url 'deletedoc' document.id %}" title="Eliminar">
+                                    <a class="btn btn-outline-danger btn-sm btn-delete" href=" {% url 'deletedoc' document.id %}" title="Eliminar">
                                         <i class="bi bi-trash-fill"></i>
                                     </a>
         
@@ -90,15 +89,31 @@
                                         {% endwith %}
                                     {% endwith %}
                                 </td>
+                                <td> {{ document.doctype }} </td>
+                                <td> {{ document.origin }} </td>
                                 <td> {{ document.description }} </td>
                                 <td> 
                                     {{ document.dateregister|date:"d/m/Y" }}
                                 </td>
                             </tr>
+
+                            {% empty %}  
+                                <div class="alert alert-warning py-2 d-flex" role="alert">
+                                    <i class="bi bi-info-circle-fill"></i>
+                                    <div class="mx-auto">
+                                        No se encontraron documentos
+                                    </div>
+                                </div>
                         {% endfor %}
+
                     </tbody>
                 </table>
             </div>
+        </section>
+        
+        <section class="my-3">
+            {% if page_obj.has_other_pages %}
+                {% include "pagination.html" %}
             {% endif %}
         </section>
     </div>

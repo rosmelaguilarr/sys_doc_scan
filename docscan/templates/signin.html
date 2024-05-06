@@ -7,15 +7,20 @@
         <div class="position-absolute top-50 start-50 translate-middle">
             <section class="col-md-4 offset-md-4">
                 {% if user.is_authenticated %}
-                    <div class="alert alert-success alert-dismissible text-center fade show" role="alert">
-                        Ya iniciaste sesión {{ user.username }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <div class="alert alert-warning text-center d-flex py-2" role="alert">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <div class="mx-auto">
+                            Ya iniciaste sesión {{ user.username }}
+                        </div>
                     </div>
                 {% else %}
                     <h1 class="text-center display-6 text-center">Iniciar sesión</h1>
                 {% if error %}
-                    <div class="alert alert-danger text-center" role="alert">
-                        {{ error }}
+                    <div class="alert alert-danger text-center py-2 d-flex" role="alert">
+                        <i class="bi bi-x-circle-fill"></i>
+                        <div class="mx-auto">
+                            {{ error }}
+                        </div>
                     </div>
                 {% endif %}
                     <form method="POST" class="card card-body">

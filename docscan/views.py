@@ -10,6 +10,9 @@ from django.urls import reverse
 from django.contrib import messages
 import os
 import base64
+from django.core.paginator import Paginator
+from django.http import Http404
+
 
 def signin(request):
     if request.method == 'GET':
@@ -27,6 +30,7 @@ def signin(request):
         else:
             login(request, user)
             return redirect('home')
+
 
 def signup(request):
     if request.method == 'GET':
@@ -48,13 +52,16 @@ def signup(request):
             'form': UserCreationForm,
             'error': 'Las contraseñas no coinciden'})
 
+
 def home(request):
     return render(request, 'index.html')
+
 
 @login_required
 def signout(request):
     logout(request)
     return redirect('home')
+
 
 @login_required
 def registerdoc(request):
@@ -84,26 +91,36 @@ def registerdoc(request):
                 'error': 'Por favor escribir información válida',
             })
 
+
 @login_required
 def searchdoc(request):
 
-    if request.method == 'GET':
-        return render(request, 'searchdoc.html')
-    else:
-        dateregister = request.POST['date_search']
-        doctype = request.POST['doctype_search']
-        origin = request.POST['origin_search']
-        description = request.POST['name_search']
+        dateregister = request.GET.get('date_search', '')
+        doctype = request.GET.get('doctype_search', '')
+        origin = request.GET.get('origin_search', '')
+        description = request.GET.get('name_search', '')
 
-        documents = Document.objects.filter(description__icontains=description, doctype__icontains=doctype,
-                                            dateregister__icontains=dateregister, origin__icontains=origin, user=request.user)
+        if not any([dateregister, doctype, origin, description]):
+            return render(request, 'searchdoc.html')
+
+        list_docs = Document.objects.filter(description__icontains=description,
+                                            doctype__icontains=doctype,
+                                            dateregister__icontains=dateregister,
+                                            origin__icontains=origin,
+                                            user=request.user
+                                            )
+
+        paginator = Paginator(list_docs, 2)  
+
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
 
         context = {
-            'form': DocumentForm,
-            'documents': documents,
+            'page_obj': page_obj,
+            'paginator': paginator,
         }
-
         return render(request, 'searchdoc.html', context)
+
 
 @login_required
 def updatedoc(request, doc_id):
@@ -115,12 +132,12 @@ def updatedoc(request, doc_id):
         try:
             document = get_object_or_404(
                 Document, pk=doc_id, user=request.user)
-            
+
             if len(request.FILES) != 0:
                 if len(document.fileupload) > 0:
                     os.remove(document.fileupload.path)
                 document.fileupload = request.FILES['fileupload']
-            
+
             document.dateregister = request.POST["dateregister"]
             document.doctype = request.POST["doctype"]
             document.description = request.POST["description"]
@@ -130,38 +147,69 @@ def updatedoc(request, doc_id):
 
             messages.success(request, 'Documento actualizado con éxito')
             return redirect('searchdoc')
-        
+
         except ValueError:
             return render(request, 'updatedoc.html', {
                 'document': document,
                 'form': form,
                 'error': 'Error actualizado documento'})
 
+
 @login_required
 def deletedoc(request, doc_id):
     document = get_object_or_404(
-                Document, pk=doc_id, user=request.user)
-    
+        Document, pk=doc_id, user=request.user)
+
     if len(document.fileupload) > 0:
         os.remove(document.fileupload.path)
-    
+
     document.delete()
     messages.success(request, 'Documento eliminado con éxito')
     return redirect('searchdoc')
 
+
 @login_required
 def previewdoc(request, doc_id):
 
-        document = get_object_or_404(
-        Document, pk=doc_id, user=request.user)
+    # document = get_object_or_404(
+    #     Document, pk=doc_id, user=request.user)
 
-        pdf_path = document.fileupload.path
-        with open(pdf_path, 'rb') as pdf_file:
-            # Convert pdf to a string
-            pdf_content = base64.b64encode(pdf_file.read()).decode()
-        
-        context = {
-            'pdf': pdf_content,
-        }
+    # pdf_path = document.fileupload.path
+    # with open(pdf_path, 'rb') as pdf_file:
 
-        return render(request, "previewdoc.html", context)
+    #     pdf_content = base64.b64encode(pdf_file.read()).decode()
+
+    # context = {
+    #     'pdf': pdf_content,
+    # }
+
+    # return render(request, "previewdoc.html", context)
+    
+
+    document = get_object_or_404(Document, pk=doc_id, user=request.user)
+    pdf_path = document.fileupload.path
+
+    # Crear una lista para almacenar los fragmentos codificados en base64
+    pdf_content_chunks = []
+
+    # Leer el archivo PDF en bloques y codificar cada bloque en base64
+    with open(pdf_path, 'rb') as pdf_file:
+        while True:
+            # Leer un bloque de datos del archivo
+            chunk = pdf_file.read(1024)  # Lee 1 KB a la vez
+
+            # Si no hay más datos en el archivo, detener el bucle
+            if not chunk:
+                break
+
+            # Codificar el bloque en base64 y agregarlo a la lista de fragmentos
+            pdf_content_chunks.append(base64.b64encode(chunk).decode())
+
+    # Concatenar los fragmentos codificados en base64 en una cadena
+    pdf_content = ''.join(pdf_content_chunks)
+
+    context = {
+        'pdf': pdf_content,
+    }
+
+    return render(request, "previewdoc.html", context)

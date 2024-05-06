@@ -8,8 +8,11 @@
             <section class="col-md-4 offset-md-4">
                 <h1 class="text-center display-6">Registrarse</h1>
                 {% if error %}
-                    <div class="alert alert-danger text-center" role="alert">
-                        {{ error }}
+                    <div class="alert alert-danger text-center py-2 d-flex" role="alert">
+                        <i class="bi bi-x-circle-fill"></i>
+                        <div class="mx-auto">
+                            {{ error }}
+                        </div>
                     </div>
                 {% endif %}
                 <form method="POST" class="card card-body ">

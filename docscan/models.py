@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from .filters import DocumentManager
+import os
 
 # Create your models here.
 
@@ -16,6 +17,9 @@ ORIGIN=[
     ('TEL', 'Telecomunincaciones'),
 ]
 
+def get_upload_path(instance, filename):
+    return os.path.join('uploads', filename)
+
 
 class Document(models.Model):
     dateregister = models.DateField(verbose_name='Fecha:', auto_now=False)
@@ -23,7 +27,9 @@ class Document(models.Model):
     description = models.TextField(verbose_name='Descripción:',null=False, blank=False)
     folios = models.PositiveIntegerField(verbose_name='Folios:',default=0, null=False, blank=False)
     origin = models.CharField(verbose_name='Origen de documento:',null=False,max_length=50, choices=ORIGIN)
-    fileupload = models.FileField(verbose_name='Cargar PDF - 30MB max. :',upload_to="uploads/")
+
+    fileupload = models.FileField(verbose_name='Cargar PDF - 30MB max. :', upload_to=get_upload_path)
+
     created = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 

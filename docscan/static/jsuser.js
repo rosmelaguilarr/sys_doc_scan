@@ -70,5 +70,6 @@ if($fileInput) {
 // Autoclose alert
 
 window.setTimeout(function() {
-    document.querySelector(".alert").classList.add('d-none')
+    $alert = document.querySelector(".alert")
+    if ($alert) $alert.classList.add('d-none')
 }, 3000);

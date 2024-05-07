@@ -8,10 +8,10 @@ from .forms import DocumentForm
 from .models import Document
 from django.urls import reverse
 from django.contrib import messages
-import os
-import base64
 from django.core.paginator import Paginator
-from django.http import Http404
+import os
+from django.http import HttpResponse
+import mimetypes
 
 
 def signin(request):
@@ -94,14 +94,25 @@ def registerdoc(request):
 
 @login_required
 def searchdoc(request):
+    dateregister = request.GET.get('date_search', '')
+    doctype = request.GET.get('doctype_search', '')
+    origin = request.GET.get('origin_search', '')
+    description = request.GET.get('name_search', '')
 
-        dateregister = request.GET.get('date_search', '')
-        doctype = request.GET.get('doctype_search', '')
-        origin = request.GET.get('origin_search', '')
-        description = request.GET.get('name_search', '')
+    if any([dateregister, doctype, origin, description]):
+        search_filters = {
+            'dateregister': dateregister,
+            'doctype': doctype,
+            'origin': origin,
+            'description': description,
+        }
+        request.session['search_filters'] = search_filters
+    else:
+        request.session.pop('search_filters', None)
 
-        if not any([dateregister, doctype, origin, description]):
-            return render(request, 'searchdoc.html')
+    search_filters = request.session.get('search_filters', {})
+
+    if search_filters:
 
         list_docs = Document.objects.filter(description__icontains=description,
                                             doctype__icontains=doctype,
@@ -109,25 +120,31 @@ def searchdoc(request):
                                             origin__icontains=origin,
                                             user=request.user
                                             )
+    else:
+        list_docs = Document.objects.filter(user=request.user)
 
-        paginator = Paginator(list_docs, 2)  
+    paginator = Paginator(list_docs, 2)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
+    context = {
+        'page_obj': page_obj,
+        'paginator': paginator,
+    }
 
-        context = {
-            'page_obj': page_obj,
-            'paginator': paginator,
-        }
-        return render(request, 'searchdoc.html', context)
+    return render(request, 'searchdoc.html', context)
 
 
 @login_required
 def updatedoc(request, doc_id):
+    document = get_object_or_404(Document, pk=doc_id, user=request.user)
+
     if request.method == 'GET':
-        document = get_object_or_404(Document, pk=doc_id, user=request.user)
-        form = DocumentForm(instance=document)
-        return render(request, 'updatedoc.html', {'document': document, 'form': form, })
+        formatted_dateregister = document.dateregister.strftime('%Y-%m-%d')
+        
+        form = DocumentForm(instance=document, initial={'dateregister': formatted_dateregister})
+        return render(request, 'updatedoc.html', {'document': document, 'form': form})
+    
     else:
         try:
             document = get_object_or_404(
@@ -144,6 +161,8 @@ def updatedoc(request, doc_id):
             document.folios = request.POST["folios"]
             document.origin = request.POST["origin"]
             document.save()
+
+            request.session['search_filters'] = request.GET.dict()
 
             messages.success(request, 'Documento actualizado con éxito')
             return redirect('searchdoc')
@@ -171,45 +190,22 @@ def deletedoc(request, doc_id):
 @login_required
 def previewdoc(request, doc_id):
 
-    # document = get_object_or_404(
-    #     Document, pk=doc_id, user=request.user)
-
-    # pdf_path = document.fileupload.path
-    # with open(pdf_path, 'rb') as pdf_file:
-
-    #     pdf_content = base64.b64encode(pdf_file.read()).decode()
-
-    # context = {
-    #     'pdf': pdf_content,
-    # }
-
-    # return render(request, "previewdoc.html", context)
-    
-
     document = get_object_or_404(Document, pk=doc_id, user=request.user)
+
+    # Obtén la ruta del archivo PDF
     pdf_path = document.fileupload.path
 
-    # Crear una lista para almacenar los fragmentos codificados en base64
-    pdf_content_chunks = []
-
-    # Leer el archivo PDF en bloques y codificar cada bloque en base64
+    # Abre el archivo PDF y lee su contenido
     with open(pdf_path, 'rb') as pdf_file:
-        while True:
-            # Leer un bloque de datos del archivo
-            chunk = pdf_file.read(1024)  # Lee 1 KB a la vez
+        pdf_content = pdf_file.read()
 
-            # Si no hay más datos en el archivo, detener el bucle
-            if not chunk:
-                break
+    # Obtén el tipo MIME del archivo PDF
+    content_type, _ = mimetypes.guess_type(pdf_path)
+    if not content_type:
+        content_type = 'application/pdf'
 
-            # Codificar el bloque en base64 y agregarlo a la lista de fragmentos
-            pdf_content_chunks.append(base64.b64encode(chunk).decode())
-
-    # Concatenar los fragmentos codificados en base64 en una cadena
-    pdf_content = ''.join(pdf_content_chunks)
-
-    context = {
-        'pdf': pdf_content,
-    }
-
-    return render(request, "previewdoc.html", context)
+    # Devuelve el contenido del archivo PDF como una respuesta HTTP
+    response = HttpResponse(pdf_content, content_type=content_type)
+    response['Content-Disposition'] = 'inline; filename="{}"'.format(
+        os.path.basename(pdf_path))
+    return response

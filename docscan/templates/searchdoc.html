@@ -10,35 +10,41 @@
                 {% csrf_token %}
                 <div class="mb-3">
                     <label for="doctype_search">Documento:</label>
-                    <select name="doctype_search" class="select form-select"  id="doctype_search"> 
-                        <option value="" selected="">---------</option>
-                        <option value="INF">Informe</option>
-                        <option value="MEM">Memoradum</option>
-                        <option value="CAR">Carta</option>
+                    <select name="doctype_search" class="select form-select" id="doctype_search">
+                        <option value="" {% if not request.GET.doctype_search %}selected{% endif %}>---------</option>
+                        <option value="INF" {% if request.GET.doctype_search == "INF" %}selected{% endif %}>Informe</option>
+                        <option value="MEM" {% if request.GET.doctype_search == "MEM" %}selected{% endif %}>Memorandum</option>
+                        <option value="CAR" {% if request.GET.doctype_search == "CAR" %}selected{% endif %}>Carta</option>
                     </select>
                 </div>
                 <div class="mb-3">
                     <label for="origin_search">Origen:</label>
-                    <select name="origin_search" class="select form-select"  id="origin_search"> 
-                        <option value="" selected="">---------</option>
-                        <option value="ADM">Administración</option>
-                        <option value="LOG">Logística</option>
-                        <option value="TEL">Telecomunicación</option>
+                    <select name="origin_search" class="select form-select" id="origin_search">
+                        <option value="" {% if not request.GET.origin_search %}selected{% endif %}>---------</option>
+                        <option value="ADM" {% if request.GET.origin_search == "ADM" %}selected{% endif %}>Administración</option>
+                        <option value="LOG" {% if request.GET.origin_search == "LOG" %}selected{% endif %}>Logística</option>
+                        <option value="TEL" {% if request.GET.origin_search == "TEL" %}selected{% endif %}>Telecomunicación</option>
                     </select>
                 </div>
                 <div class="mb-3">
                     <label for="date_search">Fecha:</label>
                     <input type="date" name="date_search" id="date_search" 
-                    class="form-control" >
+                    class="form-control" value="{{ request.GET.date_search }}">
                 </div>
                 <div class="mb-3">
                     <label for="name_search">Descripción:</label>
                     <input type="text" name="name_search" id="name_search" 
-                    class="form-control">
+                    class="form-control" value="{{ request.GET.name_search }}">
                 </div>
-                <button class='btn btn-primary'>
-                <i class="bi bi-search mx-1" style="font-size: 1rem; color: #fff;"></i>
-                Buscar</button>
+                <div>
+                    <button class='btn btn-primary' title="Buscar">
+                        <i class="bi bi-search mx-1" style="font-size: 1rem;"></i>
+                        Buscar
+                    </button>
+                    <a href="{% url 'searchdoc' %}" class="btn btn-secondary" title="Limpiar">
+                        <i class="bi bi-eraser-fill" style="font-size: 1rem;"></i>
+                    </a>
+                </div>
             </form>
         </section>
         
@@ -78,9 +84,10 @@
                                         <i class="bi bi-trash-fill"></i>
                                     </a>
         
-                                    <a class="btn btn-outline-primary btn-sm me-2" href="{% url 'previewdoc' document.id %}" title="Ver">
+                                    <a class="btn btn-outline-primary btn-sm me-2" href="{% url 'previewdoc' doc_id=document.pk %}" target="_blank">
                                         <i class="bi bi-search"></i>
                                     </a>
+
                                 </td>
                                 <td>
                                     {% with file_path=document.fileupload %}
@@ -96,14 +103,14 @@
                                     {{ document.dateregister|date:"d/m/Y" }}
                                 </td>
                             </tr>
-
-                            {% empty %}  
-                                <div class="alert alert-warning py-2 d-flex" role="alert">
-                                    <i class="bi bi-info-circle-fill"></i>
-                                    <div class="mx-auto">
-                                        No se encontraron documentos
-                                    </div>
+                            {% empty %}
+                            <div class="alert alert-warning text-center d-flex py-2" role="alert">
+                                <i class="bi bi-info-circle-fill"></i>
+                                <div class="mx-auto">
+                                    No se encontraron documentos
                                 </div>
+                            </div>
+                           
                         {% endfor %}
 
                     </tbody>

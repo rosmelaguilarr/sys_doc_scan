@@ -16,8 +16,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+# from django.conf.urls.static import static
+# from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('docscan.urls')),
 ]
+
+handler404 = 'docscan.views.error_404'
+
+# Agrega una ruta URL para servir archivos estáticos durante el desarrollo.
+# if settings.DEBUG:
+#     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

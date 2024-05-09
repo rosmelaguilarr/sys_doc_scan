@@ -5,26 +5,28 @@
 <main class="container">
     <div class="row">
         <section class="col-md-12 mt-3">
-            <h1 class='text-center display-6'>Buscar documentos</h1>
+            <h1 class='text-center display-6 fs-2 mb-3' >Buscar documentos</h1>
             <form method='GET' class="card card-body flex-row justify-content-between align-items-center" >
                 {% csrf_token %}
                 <div class="mb-3">
                     <label for="doctype_search">Documento:</label>
                     <select name="doctype_search" class="select form-select" id="doctype_search">
-                        <option value="" {% if not request.GET.doctype_search %}selected{% endif %}>---------</option>
-                        <option value="INF" {% if request.GET.doctype_search == "INF" %}selected{% endif %}>Informe</option>
-                        <option value="MEM" {% if request.GET.doctype_search == "MEM" %}selected{% endif %}>Memorandum</option>
-                        <option value="CAR" {% if request.GET.doctype_search == "CAR" %}selected{% endif %}>Carta</option>
+                        <option value="" {% if not request.GET.doctype_search %}selected{% endif %}>Escoge documento</option>
+                        {% for doctype in doctypes %}
+                        <option value="{{ doctype.pk }}" {% if request.GET.doctype_search == doctype.pk|stringformat:"s" %}selected{% endif %}>{{ doctype.name }}</option>
+
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="mb-3">
                     <label for="origin_search">Origen:</label>
                     <select name="origin_search" class="select form-select" id="origin_search">
-                        <option value="" {% if not request.GET.origin_search %}selected{% endif %}>---------</option>
-                        <option value="ADM" {% if request.GET.origin_search == "ADM" %}selected{% endif %}>Administración</option>
-                        <option value="LOG" {% if request.GET.origin_search == "LOG" %}selected{% endif %}>Logística</option>
-                        <option value="TEL" {% if request.GET.origin_search == "TEL" %}selected{% endif %}>Telecomunicación</option>
+                        <option value="" {% if not request.GET.origin_search %}selected{% endif %}>Escoge origen</option>
+                        {% for origin in origins %}
+                        <option value="{{ origin.pk }}" {% if request.GET.origin_search == origin.pk|stringformat:"s" %}selected{% endif %}>{{ origin.name }}</option>
+                        {% endfor %}
                     </select>
+                    
                 </div>
                 <div class="mb-3">
                     <label for="date_search">Fecha:</label>

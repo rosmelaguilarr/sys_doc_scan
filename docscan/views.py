@@ -5,14 +5,13 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from .forms import DocumentForm
-from .models import Document
+from .models import Document, DocType, Origin
 from django.urls import reverse
 from django.contrib import messages
 from django.core.paginator import Paginator
 import os
 from django.http import HttpResponse
 import mimetypes
-
 
 def signin(request):
     if request.method == 'GET':
@@ -33,24 +32,53 @@ def signin(request):
 
 
 def signup(request):
+    # if request.method == 'GET':
+    #     return render(request, 'signup.html', {'form': UserCreationForm})
+    # else:
+    #     if request.POST['password1'] == request.POST['password2']:
+    #         try:
+    #             user = User.objects.create_user(
+    #                 username=request.POST['username'], password=request.POST['password1'])
+    #             user.save()
+    #             login(request, user) 
+    #             return redirect('home')
+    #         except IntegrityError:
+    #             return render(request, 'signup.html', {
+    #                 'form': UserCreationForm,
+    #                 'error': 'Usuario ya existe'})
+
+    #     return render(request, 'signup.html', {
+    #         'form': UserCreationForm,
+    #         'error': 'Las contraseñas no coinciden'})
+
     if request.method == 'GET':
-        return render(request, 'signup.html', {'form': UserCreationForm})
+        return render(request, 'signup.html', {'form': UserCreationForm()})
     else:
-        if request.POST['password1'] == request.POST['password2']:
+        username = request.POST['username']
+        password1 = request.POST['password1']
+        password2 = request.POST['password2']
+        
+        # Verifica si los campos obligatorios están vacíos
+        if not (username and password1 and password2):
+            return render(request, 'signup.html', {
+                'form': UserCreationForm(),
+                'error': 'Por favor, completa todos los campos'})
+        
+        if password1 == password2:
             try:
-                user = User.objects.create_user(
-                    username=request.POST['username'], password=request.POST['password1'])
+                user = User.objects.create_user(username=username, password=password1)
                 user.save()
-                login(request, user)  # crear cookie
+                login(request, user)
                 return redirect('home')
             except IntegrityError:
                 return render(request, 'signup.html', {
-                    'form': UserCreationForm,
-                    'error': 'Usuario ya existe'})
-
-        return render(request, 'signup.html', {
-            'form': UserCreationForm,
-            'error': 'Las contraseñas no coinciden'})
+                    'form': UserCreationForm(),
+                    'error': f'El usuario {username} ya existe',
+                    })
+        else:
+            return render(request, 'signup.html', {
+                'form': UserCreationForm(),
+                'error': 'Las contraseñas no coinciden'})
 
 
 def home(request):
@@ -66,34 +94,22 @@ def signout(request):
 @login_required
 def registerdoc(request):
     if request.method == 'GET':
-        return render(request, 'registerdoc.html', {
-            'form': DocumentForm,
-        })
+        form = DocumentForm()  
+        return render(request, 'registerdoc.html', {'form': form})
     else:
-        try:
-            dateregister = request.POST["dateregister"]
-            doctype = request.POST["doctype"]
-            description = request.POST["description"]
-            folios = request.POST["folios"]
-            origin = request.POST["origin"]
-            fileupload = request.FILES["fileupload"]
-
-            new_document = Document(
-                dateregister=dateregister, doctype=doctype, description=description, folios=folios,
-                origin=origin, fileupload=fileupload, user=request.user)
-            new_document.save()
-
-            return redirect(reverse('registerdoc')+'?ok')
-
-        except ValueError:
-            return render(request, 'registerdoc.html', {
-                'form': DocumentForm,
-                'error': 'Por favor escribir información válida',
-            })
-
+        form = DocumentForm(request.POST, request.FILES) 
+        if form.is_valid():  
+            form.instance.user = request.user  
+            form.save() 
+            return redirect(reverse('registerdoc') + '?ok')
+        else:
+            return render(request, 'registerdoc.html', {'form': form})
 
 @login_required
 def searchdoc(request):
+    doctypes = DocType.objects.all()
+    origins = Origin.objects.all()
+
     dateregister = request.GET.get('date_search', '')
     doctype = request.GET.get('doctype_search', '')
     origin = request.GET.get('origin_search', '')
@@ -113,11 +129,10 @@ def searchdoc(request):
     search_filters = request.session.get('search_filters', {})
 
     if search_filters:
-
-        list_docs = Document.objects.filter(description__icontains=description,
-                                            doctype__icontains=doctype,
+        list_docs = Document.objects.order_by('dateregister').filter(description__icontains=description,
+                                            doctype__id__icontains=doctype,
                                             dateregister__icontains=dateregister,
-                                            origin__icontains=origin,
+                                            origin__id__icontains=origin,
                                             user=request.user
                                             )
     else:
@@ -130,6 +145,8 @@ def searchdoc(request):
     context = {
         'page_obj': page_obj,
         'paginator': paginator,
+        'doctypes': doctypes,
+        'origins': origins,
     }
 
     return render(request, 'searchdoc.html', context)
@@ -156,10 +173,10 @@ def updatedoc(request, doc_id):
                 document.fileupload = request.FILES['fileupload']
 
             document.dateregister = request.POST["dateregister"]
-            document.doctype = request.POST["doctype"]
+            document.doctype= DocType.objects.get(pk=request.POST["doctype"])
             document.description = request.POST["description"]
             document.folios = request.POST["folios"]
-            document.origin = request.POST["origin"]
+            document.origin = Origin.objects.get(pk=request.POST["origin"])
             document.save()
 
             request.session['search_filters'] = request.GET.dict()
@@ -191,21 +208,18 @@ def deletedoc(request, doc_id):
 def previewdoc(request, doc_id):
 
     document = get_object_or_404(Document, pk=doc_id, user=request.user)
-
-    # Obtén la ruta del archivo PDF
     pdf_path = document.fileupload.path
-
-    # Abre el archivo PDF y lee su contenido
     with open(pdf_path, 'rb') as pdf_file:
         pdf_content = pdf_file.read()
 
-    # Obtén el tipo MIME del archivo PDF
     content_type, _ = mimetypes.guess_type(pdf_path)
     if not content_type:
         content_type = 'application/pdf'
 
-    # Devuelve el contenido del archivo PDF como una respuesta HTTP
     response = HttpResponse(pdf_content, content_type=content_type)
     response['Content-Disposition'] = 'inline; filename="{}"'.format(
         os.path.basename(pdf_path))
     return response
+
+def error_404(request, exception):
+    return render(request, '404.html', {})

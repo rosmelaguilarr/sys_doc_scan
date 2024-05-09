@@ -6,7 +6,10 @@
     <div class="row">
         <div class="position-absolute top-50 start-50 translate-middle">
             <section class="col-md-4 offset-md-4">
-                <h1 class="text-center display-6">Registrarse</h1>
+                <div class="text-center">
+                    <i class="bi bi-person-fill-add i-color" style="font-size: 3rem;"></i>
+                </div>
+                <h1 class="text-center display-6 fs-2 mb-3">Registrarse</h1>
                 {% if error %}
                     <div class="alert alert-danger text-center py-2 d-flex" role="alert">
                         <i class="bi bi-x-circle-fill"></i>
@@ -17,18 +20,27 @@
                 {% endif %}
                 <form method="POST" class="card card-body ">
                     {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="username">Usuario:</label>
+                    <div class="mb-3 input-group">
+                        {% comment %} <label for="username">Usuario:</label> {% endcomment %}
+                        <span class="input-group-text" id="basic-addon1">
+                            <i class="bi bi-person-fill"></i>
+                        </span>
                         <input type="text" name="username" id="username" 
                         class="form-control" autofocus placeholder="Nombre de usuario">
                     </div>
-                    <div class="mb-3">
-                        <label for="password1">Contraseña:</label>
+                    <div class="mb-3 input-group">
+                        {% comment %} <label for="password1">Contraseña:</label> {% endcomment %}
+                        <span class="input-group-text" id="basic-addon1">
+                            <i class="bi bi-lock-fill"></i>
+                        </span>
                         <input type="password" name="password1" id="password1" 
                         class="form-control" placeholder="Una contraseña">
                     </div>
-                    <div class="mb-3">
-                        <label for="password2">Confirmar contraseña:</label>
+                    <div class="mb-3 input-group">
+                        {% comment %} <label for="password2">Confirmar contraseña:</label> {% endcomment %}
+                        <span class="input-group-text" id="basic-addon1">
+                            <i class="bi bi-lock-fill"></i>
+                        </span>
                         <input type="password" name="password2" id="password2" 
                         class="form-control" placeholder="Confirma tu contraseña">
                     </div>

@@ -2,21 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from .filters import DocumentManager
 import os
-# from .models import DocType, Origin
-
-# Create your models here.
-
-# DOCUMENT_TYPE=[
-#     ('INF', 'Informe'),
-#     ('MEM', 'Memoradum'),
-#     ('CAR', 'Carta'),
-# ]
-
-# ORIGIN=[
-#     ('LOG', 'Logística'),
-#     ('ADM', 'Administración'),
-#     ('TEL', 'Telecomunincaciones'),
-# ]
 
 class DocType(models.Model):
     name = models.CharField(max_length=50)

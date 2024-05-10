@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from .forms import DocumentForm
 from .models import Document, DocType, Origin
 from django.urls import reverse
@@ -13,76 +13,48 @@ import os
 from django.http import HttpResponse
 import mimetypes
 
-def signin(request):
-    if request.method == 'GET':
-        return render(request, 'signin.html', {'form': AuthenticationForm, })
-
-    else:
-        user = authenticate(
-            request, username=request.POST['username'], password=request.POST['password']
-        )
-
-        if user is None:
-            return render(request, 'signin.html', {
-                'form': AuthenticationForm,
-                'error': 'Usuario o contraseña incorrecto'})
-        else:
-            login(request, user)
-            return redirect('home')
-
-
-def signup(request):
-    # if request.method == 'GET':
-    #     return render(request, 'signup.html', {'form': UserCreationForm})
-    # else:
-    #     if request.POST['password1'] == request.POST['password2']:
-    #         try:
-    #             user = User.objects.create_user(
-    #                 username=request.POST['username'], password=request.POST['password1'])
-    #             user.save()
-    #             login(request, user) 
-    #             return redirect('home')
-    #         except IntegrityError:
-    #             return render(request, 'signup.html', {
-    #                 'form': UserCreationForm,
-    #                 'error': 'Usuario ya existe'})
-
-    #     return render(request, 'signup.html', {
-    #         'form': UserCreationForm,
-    #         'error': 'Las contraseñas no coinciden'})
-
-    if request.method == 'GET':
-        return render(request, 'signup.html', {'form': UserCreationForm()})
-    else:
-        username = request.POST['username']
-        password1 = request.POST['password1']
-        password2 = request.POST['password2']
-        
-        # Verifica si los campos obligatorios están vacíos
-        if not (username and password1 and password2):
-            return render(request, 'signup.html', {
-                'form': UserCreationForm(),
-                'error': 'Por favor, completa todos los campos'})
-        
-        if password1 == password2:
-            try:
-                user = User.objects.create_user(username=username, password=password1)
-                user.save()
-                login(request, user)
-                return redirect('home')
-            except IntegrityError:
-                return render(request, 'signup.html', {
-                    'form': UserCreationForm(),
-                    'error': f'El usuario {username} ya existe',
-                    })
-        else:
-            return render(request, 'signup.html', {
-                'form': UserCreationForm(),
-                'error': 'Las contraseñas no coinciden'})
-
 
 def home(request):
     return render(request, 'index.html')
+
+
+def signin(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = AuthenticationForm(request, request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('home')
+            else:
+                form.add_error(None, 'Usuario o contraseña incorrecto')
+    else:
+        form = AuthenticationForm(initial={'username': request.POST.get('username', '')})
+    
+    return render(request, 'signin.html', {'form': form})
+
+
+@transaction.atomic
+def signup(request):
+
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            try:
+                user = form.save()
+                login(request, user)
+                return redirect('home')
+            except IntegrityError:
+                form.add_error('username', 'El nombre de usuario ya está en uso.')
+    else:
+        form = UserCreationForm(initial={'username': request.POST.get('username', '')})
+    
+    return render(request, 'signup.html', {'form': form})
 
 
 @login_required
@@ -104,6 +76,7 @@ def registerdoc(request):
             return redirect(reverse('registerdoc') + '?ok')
         else:
             return render(request, 'registerdoc.html', {'form': form})
+
 
 @login_required
 def searchdoc(request):

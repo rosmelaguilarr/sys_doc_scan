@@ -28,7 +28,7 @@ if($fileInput) {
             const sizeMB = MAX_FILE_SIZE / 1000000;
     
             $alert = `
-                        <div class="alert alert-danger py-2 d-flex" role="alert">
+                        <div class="alert alert-danger py-2 d-flex alert-hide" role="alert">
                             <div class="mx-auto">
                                 Tamaño máximo permitido: <strong>${sizeMB}MB</strong>
                             </div>
@@ -43,7 +43,7 @@ if($fileInput) {
         if (arrFileName[arrFileName.length - 1] !== 'pdf') {
 
             $alert = `
-                        <div class="alert alert-danger py-2 d-flex" role="alert">
+                        <div class="alert alert-danger py-2 d-flex alert-hide" role="alert">
                             <div class="mx-auto">
                                 El documento '${arrFileName[arrFileName.length - 1]}' no es <strong>PDF</strong>
                             </div>
@@ -73,7 +73,7 @@ if($fileInput) {
 
 // Autoclose alert
 
-// window.setTimeout(function() {
-//     $alert = document.querySelector(".alert")
-//     if ($alert) $alert.classList.add('d-none')
-// }, 3000);
+window.setTimeout(function() {
+    $alert = document.querySelector(".alert-hide")
+    if ($alert) $alert.classList.add('d-none')
+}, 3000);

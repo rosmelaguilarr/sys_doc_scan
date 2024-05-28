@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-# from .filters import DocumentManager
 import os
 
 class DocType(models.Model):
@@ -36,8 +35,6 @@ class Document(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
-
-    # objects = DocumentManager()
 
     def __str__(self):
         return f'{self.doctype} by {self.user.username} - {self.fileupload}' 

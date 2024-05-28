@@ -6,12 +6,12 @@
     <div class="row">
         <section class="col-md-12 mt-3">
             <h1 class='text-center display-6 fs-2 mb-3' >Buscar documentos</h1>
-            <form method='GET' class="card card-body flex-row justify-content-between align-items-center" >
+            <form method='GET' class="card card-body flex-row flex-wrap justify-content-between align-items-center" >
                 {% csrf_token %}
                 <div class="mb-3">
                     <label for="doctype_search">Documento:</label>
-                    <select name="doctype_search" class="select form-select" id="doctype_search">
-                        <option value="" {% if not request.GET.doctype_search %}selected{% endif %}>Escoge documento</option>
+                    <select name="doctype_search" class="select form-select" id="doctype_search" style="max-width: 200px;">
+                        <option value="" {% if not request.GET.doctype_search %}selected{% endif %}>Escoge documento ...</option>
                         {% for doctype in doctypes %}
                         <option value="{{ doctype.pk }}" {% if request.GET.doctype_search == doctype.pk|stringformat:"s" %}selected{% endif %}>{{ doctype.name }}</option>
 
@@ -19,9 +19,19 @@
                     </select>
                 </div>
                 <div class="mb-3">
+                    <label for="direction_search">Dirección:</label>
+                    <select name="direction_search" class="select form-select" id="direction_search" style="max-width: 200px;">
+                        <option value="" {% if not request.GET.direction_search %}selected{% endif %}>Escoge dirección ...</option>
+                        {% for direction in directions %}
+                        <option value="{{ direction.pk }}" {% if request.GET.direction_search == direction.pk|stringformat:"s" %}selected{% endif %}>{{ direction.name }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                </div>
+                <div class="mb-3">
                     <label for="origin_search">Origen:</label>
-                    <select name="origin_search" class="select form-select" id="origin_search">
-                        <option value="" {% if not request.GET.origin_search %}selected{% endif %}>Escoge origen</option>
+                    <select name="origin_search" class="select form-select" id="origin_search" style="max-width: 200px;">
+                        <option value="" {% if not request.GET.origin_search %}selected{% endif %}>Escoge origen ...</option>
                         {% for origin in origins %}
                         <option value="{{ origin.pk }}" {% if request.GET.origin_search == origin.pk|stringformat:"s" %}selected{% endif %}>{{ origin.name }}</option>
                         {% endfor %}
@@ -36,7 +46,7 @@
                 <div class="mb-3">
                     <label for="name_search">Descripción:</label>
                     <input type="text" name="name_search" id="name_search" 
-                    class="form-control" value="{{ request.GET.name_search }}">
+                    class="form-control" value="{{ request.GET.name_search }}" style="max-width: 200px;">
                 </div>
                 <div>
                     <button class='btn btn-primary' title="Buscar">
@@ -53,7 +63,7 @@
         <section class="col-md-12 mt-3">
             {% if messages %}
                 {% for msg in messages  %}
-                    <div class="alert alert-success py-2 d-flex" role="alert">
+                    <div class="alert alert-success py-2 d-flex alert-hide" role="alert">
                         <div class="mx-auto">
                             {{ msg }}
                         </div>
@@ -62,22 +72,22 @@
                 {% endfor %}
             {% endif %}
 
-            <div class="card card-body">
+            <div class="card card-body table-responsive">
                 <table class="table table-hover">
                     <thead>
                         <tr>
                         <th scope="col">Acciones</th>
                         <th scope="col">Nombre</th>
                         <th scope="col">Documento</th>
+                        <th scope="col">Dirección</th>
                         <th scope="col">Orígen</th>
-                        <th scope="col">Descripción</th>
                         <th scope="col">Fecha</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for document in page_obj %}
                             <tr>
-                                <td>
+                                <td >
                                     <a class="btn btn-outline-primary btn-sm" href=" {% url 'updatedoc' document.id %} ">
                                         <i class="bi bi-pencil-fill" title="Editar"></i>
                                     </a>
@@ -99,8 +109,8 @@
                                     {% endwith %}
                                 </td>
                                 <td> {{ document.doctype }} </td>
+                                <td> {{ document.direction }} </td>
                                 <td> {{ document.origin }} </td>
-                                <td> {{ document.description }} </td>
                                 <td> 
                                     {{ document.dateregister|date:"d/m/Y" }}
                                 </td>

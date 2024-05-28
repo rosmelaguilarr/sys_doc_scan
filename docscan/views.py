@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError, transaction
 from .forms import DocumentForm
-from .models import Document, DocType, Origin
+from .models import Document, DocType, Origin, Direction
 from django.urls import reverse
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -65,33 +65,47 @@ def signout(request):
 
 @login_required
 def registerdoc(request):
-    if request.method == 'GET':
-        form = DocumentForm()  
-        return render(request, 'registerdoc.html', {'form': form})
-    else:
-        form = DocumentForm(request.POST, request.FILES) 
-        if form.is_valid():  
-            form.instance.user = request.user  
-            form.save() 
+    if request.method == 'POST':
+        form = DocumentForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.instance.user = request.user
+            form.save()
             return redirect(reverse('registerdoc') + '?ok')
-        else:
-            return render(request, 'registerdoc.html', {'form': form})
+    else:
+        form = DocumentForm()
+    
+    directions = Direction.objects.all()
+    origins = Origin.objects.all()
+
+    origin_options = [
+        {'value': origin.id, 'name': origin.name, 'direction_id': origin.direction_id}
+        for origin in origins
+    ]
+
+    return render(request, 'registerdoc.html', {
+        'form': form,
+        'directions': directions,
+        'origin_options': origin_options
+    })
 
 
 @login_required
 def searchdoc(request):
     doctypes = DocType.objects.all()
     origins = Origin.objects.all()
+    directions = Direction.objects.all()
 
     dateregister = request.GET.get('date_search', '')
     doctype = request.GET.get('doctype_search', '')
     origin = request.GET.get('origin_search', '')
+    direction = request.GET.get('direction_search', '')
     description = request.GET.get('name_search', '')
 
-    if any([dateregister, doctype, origin, description]):
+    if any([dateregister, doctype, direction, origin, description]):
         search_filters = {
             'dateregister': dateregister,
             'doctype': doctype,
+            'direction': direction,
             'origin': origin,
             'description': description,
         }
@@ -105,13 +119,14 @@ def searchdoc(request):
         list_docs = Document.objects.order_by('dateregister').filter(description__icontains=description,
                                             doctype__id__icontains=doctype,
                                             dateregister__icontains=dateregister,
+                                            direction__id__icontains=direction,
                                             origin__id__icontains=origin,
                                             user=request.user
                                             )
     else:
         list_docs = Document.objects.filter(user=request.user)
 
-    paginator = Paginator(list_docs, 2)
+    paginator = Paginator(list_docs, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -120,6 +135,8 @@ def searchdoc(request):
         'paginator': paginator,
         'doctypes': doctypes,
         'origins': origins,
+        'directions': directions,
+
     }
 
     return render(request, 'searchdoc.html', context)
@@ -149,7 +166,17 @@ def updatedoc(request, doc_id):
             document.doctype= DocType.objects.get(pk=request.POST["doctype"])
             document.description = request.POST["description"]
             document.folios = request.POST["folios"]
-            document.origin = Origin.objects.get(pk=request.POST["origin"])
+            document.direction = Direction.objects.get(pk=request.POST["direction"])
+
+
+            origin_id = request.POST.get("origin")
+            if origin_id:
+                document.origin = Origin.objects.get(pk=origin_id)
+            else:
+                document.origin = None
+
+
+            # document.origin = Origin.objects.get(pk=request.POST["origin"])
             document.save()
 
             request.session['search_filters'] = request.GET.dict()

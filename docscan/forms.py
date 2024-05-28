@@ -1,6 +1,6 @@
 from django.forms import ModelForm
 from django import forms
-from .models import Document
+from .models import Document, Origin
 
 
 class DocumentForm(ModelForm):
@@ -8,22 +8,16 @@ class DocumentForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        current_choices = list(self.fields['doctype'].widget.choices)
-        current_choices[0] = ('', 'Escoge documento')
-        self.fields['doctype'].widget.choices = current_choices
+        self.fields['doctype'].empty_label = 'Escoge documento ...'
+        self.fields['direction'].empty_label = 'Escoge dirección ...'
 
-        current_choices = list(self.fields['origin'].widget.choices)
-        current_choices[0] = ('', 'Escoge origen')
-        self.fields['origin'].widget.choices = current_choices
+        self.fields['origin'].empty_label = 'Escoge origen ...'
+    
 
-        current_choices = list(self.fields['direction'].widget.choices)
-        current_choices[0] = ('', 'Escoge dirección')
-        self.fields['direction'].widget.choices = current_choices
 
     class Meta:     
         model = Document
-        fields = ['dateregister', 'doctype',
-                  'direction', 'origin', 'description', 'folios' , 'fileupload',]
+        fields = ['dateregister', 'doctype','direction', 'origin', 'description', 'folios' , 'fileupload',]
 
         widgets = {
             'dateregister': forms.DateInput(format='%d/%m/%Y', attrs={'type': 'date'}),

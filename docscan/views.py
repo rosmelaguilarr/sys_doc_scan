@@ -85,7 +85,7 @@ def registerdoc(request):
     return render(request, 'registerdoc.html', {
         'form': form,
         'directions': directions,
-        'origin_options': origin_options
+        'origin_options': origin_options,
     })
 
 
@@ -150,7 +150,21 @@ def updatedoc(request, doc_id):
         formatted_dateregister = document.dateregister.strftime('%Y-%m-%d')
         
         form = DocumentForm(instance=document, initial={'dateregister': formatted_dateregister})
-        return render(request, 'updatedoc.html', {'document': document, 'form': form})
+        # 
+        directions = Direction.objects.all()
+        origins = Origin.objects.all()
+
+        origin_options = [
+            {'value': origin.id, 'name': origin.name, 'direction_id': origin.direction_id}
+            for origin in origins
+        ]
+        # 
+        return render(request, 'updatedoc.html',
+                    {'document': document,
+                    'form': form,
+                    'directions': directions,
+                    'origin_options': origin_options,
+                    })
     
     else:
         try:
@@ -168,15 +182,12 @@ def updatedoc(request, doc_id):
             document.folios = request.POST["folios"]
             document.direction = Direction.objects.get(pk=request.POST["direction"])
 
-
             origin_id = request.POST.get("origin")
             if origin_id:
                 document.origin = Origin.objects.get(pk=origin_id)
             else:
                 document.origin = None
 
-
-            # document.origin = Origin.objects.get(pk=request.POST["origin"])
             document.save()
 
             request.session['search_filters'] = request.GET.dict()

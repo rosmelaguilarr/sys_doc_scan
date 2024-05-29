@@ -1,12 +1,11 @@
-{% extends 'layouts/nav.html' %}
-
+{% extends 'layouts/base.html' %}
 {% block content %}
 
 <main class="container">
     <div class="row">
-        <section class="col-md-12 mt-3">
-            <h1 class='text-center display-6 fs-2 mb-3' >Buscar documentos</h1>
-            <form method='GET' class="card card-body flex-row flex-wrap justify-content-between align-items-center" >
+        <section class="col-md-12 mt-4">
+            <h3 class="text-center mb-3" >Buscar documentos</h3>
+            <form method="GET" class="card card-body flex-row flex-wrap justify-content-between align-items-center">
                 {% csrf_token %}
                 <div class="mb-3">
                     <label for="doctype_search">Documento:</label>
@@ -49,18 +48,18 @@
                     class="form-control" value="{{ request.GET.name_search }}" style="max-width: 200px;">
                 </div>
                 <div>
-                    <button class='btn btn-primary' title="Buscar">
+                    <button class="btn btn-primary" title="Buscar">
                         <i class="bi bi-search mx-1" style="font-size: 1rem;"></i>
                         Buscar
                     </button>
-                    <a href="{% url 'searchdoc' %}" class="btn btn-secondary" title="Limpiar">
+                    <a href="{% url "searchdoc" %}" class="btn btn-secondary" title="Limpiar">
                         <i class="bi bi-eraser-fill" style="font-size: 1rem;"></i>
                     </a>
                 </div>
             </form>
         </section>
         
-        <section class="col-md-12 mt-3">
+        <section class="col-md-12 my-3">
             {% if messages %}
                 {% for msg in messages  %}
                     <div class="alert alert-success py-2 d-flex alert-hide" role="alert">
@@ -87,7 +86,7 @@
                     <tbody>
                         {% for document in page_obj %}
                             <tr>
-                                <td >
+                                <td>
                                     <a class="btn btn-outline-primary btn-sm" href=" {% url 'updatedoc' document.id %} ">
                                         <i class="bi bi-pencil-fill" title="Editar"></i>
                                     </a>
@@ -102,15 +101,29 @@
 
                                 </td>
                                 <td>
-                                    {% with file_path=document.fileupload %}
-                                        {% with file_name=file_path|cut:"/"|slice:"7:" %}
-                                            {{ file_name }}
-                                        {% endwith %}
-                                    {% endwith %}
+                                    <span class="d-inline-block text-truncate" style="max-width: 180px;">
+                                        {% with file_path=document.fileupload %}
+                                            {% with file_name=file_path|cut:"/"|slice:"7:" %}
+                                                {{ file_name }}
+                                            {% endwith %}
+                                        {% endwith %} 
+                                    </span>
                                 </td>
-                                <td> {{ document.doctype }} </td>
-                                <td> {{ document.direction }} </td>
-                                <td> {{ document.origin }} </td>
+                                <td>
+                                    <span class="d-inline-block text-truncate" style="max-width: 180px;">
+                                    {{ document.doctype }}
+                                    </span>
+                                </td>
+                                <td> 
+                                    <span class="d-inline-block text-truncate" style="max-width: 180px;">
+                                    {{ document.direction }} 
+                                    </span>
+                                </td>
+                                <td> 
+                                    <span class="d-inline-block text-truncate" style="max-width: 180px;">
+                                        {{ document.origin }} 
+                                    </span>
+                                </td>
                                 <td> 
                                     {{ document.dateregister|date:"d/m/Y" }}
                                 </td>
@@ -129,7 +142,7 @@
             </div>
         </section>
         
-        <section class="my-3">
+        <section class=" mb-5">
             {% if page_obj.has_other_pages %}
                 {% include "pagination.html" %}
             {% endif %}

@@ -1,26 +1,53 @@
-{% extends 'layouts/nav.html' %}
+{% extends 'layouts/base.html' %}
 
 {% load crispy_forms_tags %}
 
 {% block content %}
-
 <main class="container">
-    <div class="row">
-        <section class="col-md-6 offset-md-3 my-3">
-            <h1 class="text-center display-6">Actualizar documento</h1>
-                <div class="d-flex justify-content-center my-3">
-                    <a class="btn btn-secondary btn-sm" href=" {% url 'searchdoc'%} ">
-                        <i class="bi bi-arrow-left-circle" title="Atrás"></i>
-                       Atrás
-                    </a>
-                </div>
-                <form method="POST" enctype='multipart/form-data' class="card card-body form-registerdoc mb-5">
-                    {% crispy form %}
-                    <button type="submit" class="btn btn-primary btn-registerdoc" >Actualizar</button>
-                </form>
-        </section>
+<div class="row">
+    <section class="col-md-6 offset-md-3 mt-3 mb-5">
+    <div class="d-flex justify-content-center my-3">
+        <h3 class="order-2 ms-3">Actualizar documento</h3>
+        <div class="d-flex justify-content-center align-items-center order-1">
+        <a class="btn btn-secondary" href=" {% url 'searchdoc' %} "><i class="bi bi-arrow-left-circle" title="Atrás"></i></a>
+        </div>
     </div>
+
+    <form method="POST" enctype="multipart/form-data" class="card card-body form-registerdoc mb-5">
+        {% crispy form %}
+        <button type="submit" class="btn btn-primary btn-registerdoc">Actualizar</button>
+    </form>
+    </section>
+</div>
 </main>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var originField = document.getElementById('id_origin');
+        var directionField = document.getElementById('id_direction');
+
+        var originOptions = [
+            {% for origin in origin_options %}
+                {value: '{{ origin.value }}', name: '{{ origin.name }}', direction: '{{ origin.direction_id }}'},
+            {% endfor %}
+        ];
+
+        directionField.addEventListener('change', function() {
+            var selectedDirection = this.value;
+
+            var filteredOptions = originOptions.filter(function(option) {
+                return option.direction == selectedDirection || option.value == '';
+            });
+
+            
+            originField.innerHTML = '<option value="">Escoge origen ...</option>';
+            filteredOptions.forEach(function(option) {
+                var newOption = document.createElement('option');
+                newOption.value = option.value;
+                newOption.textContent = option.name;
+                originField.appendChild(newOption);
+            });
+        });
+    });
+</script>
 
 {% endblock %}
-

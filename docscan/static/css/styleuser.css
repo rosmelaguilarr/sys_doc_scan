@@ -3,8 +3,19 @@ body{
 }
 
 #footer{
-    background: #fff;
+    background: rgb(248, 249, 250);
     width: 100%;
     height: 70px;
     padding: 3px 0;
+    color: rgba(0, 0, 0, .8);
+}
+#footer .logo, .text-otis {
+    margin: 0 5px;
+}
+#footer .logo {
+    display: flex;
+}
+#footer .logo  img{
+    height: 45px;
+    margin: 0 5px;
 }

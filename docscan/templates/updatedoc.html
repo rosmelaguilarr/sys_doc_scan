@@ -5,21 +5,21 @@
 {% block content %}
 <main class="container">
 <div class="row">
-    <section class="col-md-6 offset-md-3 mt-3 mb-5">
-    <div class="d-flex justify-content-center my-3">
-        <h3 class="order-2 ms-3">Actualizar documento</h3>
-        <div class="d-flex justify-content-center align-items-center order-1">
-        <a class="btn btn-secondary" href=" {% url 'searchdoc' %} "><i class="bi bi-arrow-left-circle" title="Atrás"></i></a>
+    <section class="col-md-8 offset-md-2 mt-4 mb-5">
+        <div class="d-flex justify-content-center my-3">
+            <h3 class="order-2 ms-3">Actualizar documento</h3>
+            <div class="d-flex justify-content-center align-items-center order-1">
+            <a class="btn btn-secondary" href=" {% url 'searchdoc' %} "><i class="bi bi-arrow-left-circle" title="Atrás"></i></a>
+            </div>
         </div>
-    </div>
 
-    <form method="POST" enctype="multipart/form-data" class="card card-body form-registerdoc mb-5">
-        {% crispy form %}
-        <button type="submit" class="btn btn-primary btn-registerdoc">Actualizar</button>
-    </form>
+        <form method="POST" enctype="multipart/form-data" class="card card-body mb-5">
+            {% crispy form %}
+        </form>
     </section>
 </div>
 </main>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var originField = document.getElementById('id_origin');
@@ -38,7 +38,6 @@
                 return option.direction == selectedDirection || option.value == '';
             });
 
-            
             originField.innerHTML = '<option value="">Escoge origen ...</option>';
             filteredOptions.forEach(function(option) {
                 var newOption = document.createElement('option');
@@ -48,6 +47,6 @@
             });
         });
     });
-</script>
+</script> 
 
 {% endblock %}

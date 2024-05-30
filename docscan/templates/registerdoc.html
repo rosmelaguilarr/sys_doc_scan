@@ -6,30 +6,29 @@
 
 <main class="container">
 <div class="row">
-    <section class="col-md-6 offset-md-3 mt-4 mb-5">
-    <h3 class="text-center mb-3">Registrar documento</h3>
+    <section class="col-md-8 offset-md-2 my-5">
+        <h3 class="text-center mb-3">Registrar documento</h3>
 
-    {% if 'ok' in request.GET %}
-        <div class="alert alert-success text-center d-flex py-2" role="alert">
-        <i class="bi bi-check-circle-fill"></i>
-        <div class="mx-auto">Documento registrado con éxito</div>
-        </div>
-        <div class="mt-3 d-flex justify-content-center">
-        <a class="btn btn-primary flex-fill mx-2" href="{% url 'registerdoc' %}">
-            <i class="bi bi-file-plus-fill mx-1" style="font-size: 1.2rem; color: #fff;"></i>
-            Nuevo registro
-        </a>
-        <a class="btn btn-primary flex-fill mx-2" href="{% url 'searchdoc' %}">
-            <i class="bi bi-search mx-1" style="font-size: 1.2rem; color: #fff;"></i>
-            Buscar
-        </a>
-        </div>
-    {% else %}
-        <form method="POST" enctype="multipart/form-data" class="card card-body form-registerdoc mb-5">
-        {% crispy form %}
-        <button type="submit" class="btn btn-primary btn-registerdoc">Registrar</button>
-        </form>
-    {% endif %}
+        {% if 'ok' in request.GET %}
+            <div class="alert alert-success text-center d-flex py-2" role="alert">
+                <i class="bi bi-check-circle-fill"></i>
+                <div class="mx-auto">Documento registrado con éxito</div>
+            </div>
+            <div class="mt-3 d-flex justify-content-center">
+            <a class="btn btn-primary flex-fill mx-2" href="{% url 'registerdoc' %}">
+                <i class="bi bi-file-plus-fill mx-1" style="font-size: 1.2rem; color: #fff;"></i>
+                Nuevo registro
+            </a>
+            <a class="btn btn-primary flex-fill mx-2" href="{% url 'searchdoc' %}">
+                <i class="bi bi-search mx-1" style="font-size: 1.2rem; color: #fff;"></i>
+                Buscar
+            </a>
+            </div>
+        {% else %}
+            <form method="POST" enctype="multipart/form-data" class="card card-body mb-5">
+            {% crispy form %}
+            </form>
+        {% endif %}
     </section>
 </div>
 </main>

@@ -1,0 +1,30 @@
+# docker-compose.yml
+services:
+  django:
+    build:
+      context: .
+    container_name: ctn-sds-django
+    image: img-sds-django
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/uploads
+      - ./db.sqlite3:/app/db.sqlite3
+    env_file:
+      - .env
+
+  nginx:
+    build:
+      context: ./nginx
+    container_name: ctn-sds-nginx
+    image: img-sds-nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/uploads
+    depends_on:
+      - django
+
+volumes:
+  static_volume:
+  media_volume:

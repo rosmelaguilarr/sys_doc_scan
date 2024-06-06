@@ -18,8 +18,9 @@ env/
 !**/migrations
 !**/migrations/__init__.py
 
-# Uploads
+# Static files
 uploads/
+static/
 
 # Other files
 .DS_Store

@@ -1,9 +1,9 @@
-// Redimensionar textarea del formulario RegisterDoc
 const $txta = document.querySelector('textarea.textarea')
 if ($txta) $txta.rows = 2
 
 const MAX_FILE_SIZE = 30000000; // 1MB = 1 millón de bytes
 const $fileInput = document.querySelector("#id_fileupload");
+const $btnSubmit = document.querySelector("#submit-id-submit");
 
 if($fileInput) {
     $fileInput.addEventListener("change", function () {
@@ -22,7 +22,7 @@ if($fileInput) {
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     `
-            $btnRegisterDoc.insertAdjacentHTML('beforebegin',$alert)
+            $btnSubmit.insertAdjacentHTML('beforebegin',$alert)
             $fileInput.value = "";
         } 
 
@@ -37,7 +37,7 @@ if($fileInput) {
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     `
-            $btnRegisterDoc.insertAdjacentHTML('beforebegin',$alert)
+            $btnSubmit.insertAdjacentHTML('beforebegin',$alert)
 
             $fileInput.value = "";
         }
@@ -57,8 +57,6 @@ if($fileInput) {
 }
 
 )();
-
-// Autoclose alert
 
 window.setTimeout(function() {
     $alert = document.querySelector(".alert-hide")

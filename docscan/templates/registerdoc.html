@@ -33,33 +33,5 @@
 </div>
 </main>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var originField = document.getElementById('id_origin');
-        var directionField = document.getElementById('id_direction');
 
-        var originOptions = [
-            {% for origin in origin_options %}
-                {value: '{{ origin.value }}', name: '{{ origin.name }}', direction: '{{ origin.direction_id }}'},
-            {% endfor %}
-        ];
-
-        directionField.addEventListener('change', function() {
-            var selectedDirection = this.value;
-
-            var filteredOptions = originOptions.filter(function(option) {
-                return option.direction == selectedDirection || option.value == '';
-            });
-
-            
-            originField.innerHTML = '<option value="">Escoge origen ...</option>';
-            filteredOptions.forEach(function(option) {
-                var newOption = document.createElement('option');
-                newOption.value = option.value;
-                newOption.textContent = option.name;
-                originField.appendChild(newOption);
-            });
-        });
-    });
-</script>
 {% endblock %}

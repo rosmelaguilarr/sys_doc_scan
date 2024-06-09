@@ -14,7 +14,8 @@ RUN apk update && apk add --no-cache \
     build-base \
     python3-dev \
     py3-psycopg2 \
-    linux-headers
+    linux-headers \
+    sqlite
 
 WORKDIR /app
 

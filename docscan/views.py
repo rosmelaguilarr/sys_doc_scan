@@ -2,10 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from django.db import IntegrityError, transaction
+from django.contrib.auth.decorators import login_required, permission_required
 from .forms import DocumentForm
-from .models import Document, DocType, Origin, Direction
+from .models import Document, DocType, Direction
 from django.urls import reverse
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -39,31 +38,13 @@ def signin(request):
     return render(request, 'signin.html', {'form': form})
 
 
-@transaction.atomic
-def signup(request):
-
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            try:
-                user = form.save()
-                login(request, user)
-                return redirect('home')
-            except IntegrityError:
-                form.add_error('username', 'El nombre de usuario ya está en uso.')
-    else:
-        form = UserCreationForm(initial={'username': request.POST.get('username', '')})
-    
-    return render(request, 'signup.html', {'form': form})
-
-
 @login_required
 def signout(request):
     logout(request)
     return redirect('home')
 
-
 @login_required
+@permission_required('docscan.add_document', raise_exception=True)
 def registerdoc(request):
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
@@ -74,25 +55,26 @@ def registerdoc(request):
     else:
         form = DocumentForm()
     
-    directions = Direction.objects.all()
-    origins = Origin.objects.all()
+    # directions = Direction.objects.all()
+    # origins = Origin.objects.all()
 
-    origin_options = [
-        {'value': origin.id, 'name': origin.name, 'direction_id': origin.direction_id}
-        for origin in origins
-    ]
+    # origin_options = [
+    #     {'value': origin.id, 'name': origin.name, 'direction_id': origin.direction_id}
+    #     for origin in origins
+    # ]
 
     return render(request, 'registerdoc.html', {
         'form': form,
-        'directions': directions,
-        'origin_options': origin_options,
+        # 'directions': directions,
+        # 'origin_options': origin_options,
     })
 
 
 @login_required
 def searchdoc(request):
+    user_groups = request.user.groups.all()
     doctypes = DocType.objects.all()
-    origins = Origin.objects.all()
+    # origins = Origin.objects.all()
     directions = Direction.objects.all()
 
     dateregister = request.GET.get('date_search', '')
@@ -120,11 +102,12 @@ def searchdoc(request):
                                             doctype__id__icontains=doctype,
                                             dateregister__icontains=dateregister,
                                             direction__id__icontains=direction,
-                                            origin__id__icontains=origin,
-                                            user=request.user
+                                            origin__icontains=origin,
+                                            # user=request.user
                                             )
     else:
-        list_docs = Document.objects.filter(user=request.user)
+        list_docs = Document.objects.all()
+        # list_docs = Document.objects.filter(user=request.user)
 
     paginator = Paginator(list_docs, 10)
     page_number = request.GET.get('page')
@@ -134,8 +117,9 @@ def searchdoc(request):
         'page_obj': page_obj,
         'paginator': paginator,
         'doctypes': doctypes,
-        'origins': origins,
+        # 'origins': origins,
         'directions': directions,
+        'user_groups': user_groups,
 
     }
 
@@ -143,33 +127,26 @@ def searchdoc(request):
 
 
 @login_required
+@permission_required('docscan.change_document', raise_exception=True)
+
 def updatedoc(request, doc_id):
-    document = get_object_or_404(Document, pk=doc_id, user=request.user)
+    document = get_object_or_404(Document, pk=doc_id)
 
     if request.method == 'GET':
         formatted_dateregister = document.dateregister.strftime('%Y-%m-%d')
         
         form = DocumentForm(instance=document, initial={'dateregister': formatted_dateregister})
-        # 
-        directions = Direction.objects.all()
-        origins = Origin.objects.all()
-
-        origin_options = [
-            {'value': origin.id, 'name': origin.name, 'direction_id': origin.direction_id}
-            for origin in origins
-        ]
-        # 
+        
         return render(request, 'updatedoc.html',
                     {'document': document,
                     'form': form,
-                    'directions': directions,
-                    'origin_options': origin_options,
+                    
                     })
     
     else:
         try:
             document = get_object_or_404(
-                Document, pk=doc_id, user=request.user)
+                Document, pk=doc_id)
 
             if len(request.FILES) != 0:
                 if len(document.fileupload) > 0:
@@ -181,12 +158,7 @@ def updatedoc(request, doc_id):
             document.description = request.POST["description"]
             document.folios = request.POST["folios"]
             document.direction = Direction.objects.get(pk=request.POST["direction"])
-
-            origin_id = request.POST.get("origin")
-            if origin_id:
-                document.origin = Origin.objects.get(pk=origin_id)
-            else:
-                document.origin = None
+            document.origin = request.POST["origin"]
 
             document.save()
 
@@ -203,9 +175,11 @@ def updatedoc(request, doc_id):
 
 
 @login_required
+@permission_required('docscan.delete_document', raise_exception=True)
+
 def deletedoc(request, doc_id):
     document = get_object_or_404(
-        Document, pk=doc_id, user=request.user)
+        Document, pk=doc_id)
 
     if len(document.fileupload) > 0:
         os.remove(document.fileupload.path)
@@ -218,7 +192,7 @@ def deletedoc(request, doc_id):
 @login_required
 def previewdoc(request, doc_id):
 
-    document = get_object_or_404(Document, pk=doc_id, user=request.user)
+    document = get_object_or_404(Document, pk=doc_id)
     pdf_path = document.fileupload.path
     with open(pdf_path, 'rb') as pdf_file:
         pdf_content = pdf_file.read()
@@ -234,3 +208,6 @@ def previewdoc(request, doc_id):
 
 def error_404(request, exception):
     return render(request, '404.html', {})
+
+def error_403(request, exception):
+    return render(request, '403.html', status=403)

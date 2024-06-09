@@ -35,7 +35,6 @@ class DocumentForm(ModelForm):
 
         self.fields['doctype'].empty_label = 'Escoge documento ...'
         self.fields['direction'].empty_label = 'Escoge dirección ...'
-        self.fields['origin'].empty_label = 'Escoge origen ...'
     
     class Meta:     
         model = Document

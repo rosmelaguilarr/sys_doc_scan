@@ -86,7 +86,7 @@
                                     {% if user_groups %}
                                         {% for group in user_groups %}
                                             {% if group.name == 'Operador' %}
-                                                <a class="btn btn-outline-primary btn-sm" href="{% url 'previewdoc' doc_id=document.pk %}" target="_blank">
+                                                <a class="btn btn-outline-primary btn-sm" href="{% url 'previewdoc' doc_id=document.pk %}" target="_blank" title="Visualizar">
                                                     <i class="bi bi-search"></i>
                                                 </a>
                                             {% else %}
@@ -98,7 +98,7 @@
                                                     <i class="bi bi-trash-fill"></i>
                                                 </a>
 
-                                                <a class="btn btn-outline-primary btn-sm" href="{% url 'previewdoc' doc_id=document.pk %}" target="_blank">
+                                                <a class="btn btn-outline-primary btn-sm" href="{% url 'previewdoc' doc_id=document.pk %}" target="_blank" title="Visualizar">
                                                     <i class="bi bi-search"></i>
                                                 </a>
                                             {% endif %}

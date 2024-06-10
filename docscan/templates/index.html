@@ -1,4 +1,5 @@
 {% extends 'layouts/base.html' %}
+{% load static %}
 
 {% block content %}
 
@@ -7,20 +8,28 @@
 
         <div class="position-absolute top-50 start-50 translate-middle">
             <section class="col-md-6 offset-md-3">
-                <h1 class="display-6 text-center">
+                <div class="text-center">
+                    <img src="{% static 'images/logo-ardig-lg.png' %}" alt="ARDIG" height="200px" />
+                </div>
+                <h1 class=" text-center" style="color:#011224;">
                     Sistema Digital de Archivo Central
                 </h1>
-                <div class="text-center">
-                    {% comment %} <img src="{% static 'images/logo-ardig-lg.png' %}" alt="ARDIG" height="100px" /> {% endcomment %}
-                </div>
                 {% if user.is_authenticated %}
                     <div class="d-flex justify-content-center my-5">
-                        <a class="btn btn-primary flex-fill mx-2" href="{% url 'registerdoc' %}">
+                        <a class="btn btn-primary w-50 mx-2" href="{% url 'registerdoc' %}">
                             <i class="bi bi-file-plus-fill mx-1" style="font-size: 1.2rem; color: #fff;"></i>
-                            Registrar</a>
-                        <a class="btn btn-primary flex-fill mx-2" href="{% url 'searchdoc' %}">
+                            Nuevo Registro
+                        </a>
+                        <a class="btn btn-primary w-50 mx-2" href="{% url 'searchdoc' %}">
                             <i class="bi bi-search mx-1" style="font-size: 1.2rem; color: #fff;"></i>
-                            Buscar</a>
+                            Buscar
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="d-flex justify-content-center my-5">
+                        <a class="btn btn-primary mx-2 px-5" href="{% url 'signin' %}">
+                            Iniciar Sesión
+                        </a>
                     </div>
                 {% endif %}
             </section>

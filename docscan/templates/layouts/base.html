@@ -16,7 +16,9 @@
   <body class="position-relative" style="height: 100vh">
     <nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top">
       <div class="container-fluid">
-        <a class="navbar-brand" href="{% url 'home' %}"><img src="{% static 'images/logo.png' %}" alt="ARDIG" height="28px" /></a>
+        <a class="navbar-brand" href="{% url 'home' %}">
+          <img src="{% static 'images/logo-ardig-sm.png' %}" alt="ARDIG" title="ARDIG" height="28px" />
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="navbarNavDropdown">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
@@ -35,7 +37,7 @@
                 <li>
                   <a class="dropdown-item" href="{% url 'registerdoc' %}">
                     <i class="bi bi-file-plus-fill" style="font-size: 1.2rem;"></i>
-                    Registrar
+                    Nuevo Registro
                   </a>
                 </li>
                 <li>
@@ -69,7 +71,7 @@
               <p>
                 <a href="{% url 'signin' %}" class="link-offset-2 mx-3 link-underline link-underline-opacity-0">
                   <i class="bi bi-person-fill" style="font-size: 1.2rem; color: #0B5ED7;"></i>
-                  Ingresar
+                  Iniciar Sesión
                 </a>
               </p>
             </div>
@@ -88,7 +90,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header" style="background: rgb(248, 249, 250);">
-            <img src="{% static 'images/logo.png' %}" alt="SysDocScan" height="30" />
+            <img src="{% static 'images/logo-ardig-sm.png' %}" alt="ARDIG" title="ARDIG" height="30" />
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -121,8 +123,12 @@
 
     <div id="footer" class="fixed-bottom d-flex align-items-center justify-content-center">
       <div class="logo">
-        <img src="{% static 'images/gra.png' %}" alt="Gobierno Regional de Apurímac" title="Gobierno Regional de Apurímac" />
-        <a href="https://drtcapurimac.gob.pe/" target="_blank"><img src="{% static 'images/drta.png' %}" alt="Dirección Regional de Transportes y Comunicaciones Apurímac" title="Dirección Regional de Transportes y Comunicaciones Apurímac" /></a>
+        <a href="https://www.gob.pe/regionapurimac" target="_blank">
+          <img src="{% static 'images/gra.png' %}" alt="Gobierno Regional de Apurímac" title="Gobierno Regional de Apurímac" />
+        </a>
+        <a href="https://drtcapurimac.gob.pe/" target="_blank">
+          <img src="{% static 'images/drta.png' %}" alt="Dirección Regional de Transportes y Comunicaciones Apurímac" title="Dirección Regional de Transportes y Comunicaciones Apurímac" />
+        </a>
       </div>
 
       <span class="text-otis">

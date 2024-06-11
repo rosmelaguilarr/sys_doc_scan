@@ -28,7 +28,7 @@ SECRET_KEY = config('DJANGO_SECRET_KEY')
 DEBUG = False
 
 # ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.10.100','app-docscan']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.10.100','app-docscan:8000']
 
 CSRF_COOKIE_HTTPONLY = True  # En producción debería ser True
 CSRF_TRUSTED_ORIGINS = ['http://localhost', 'http://127.0.0.1', 'http://127.0.0.1:8000', 'http://localhost:8000', 'http://app-docscan:8000', 'http://192.168.10.100:8000']
@@ -61,7 +61,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'docscan.middleware.RestrictAccessMiddleware',
 ]
 
 ROOT_URLCONF = 'sysdocscan.urls'

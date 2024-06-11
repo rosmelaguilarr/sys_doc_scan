@@ -7,3 +7,4 @@ packaging==24.0
 python-decouple==3.8
 sqlparse==0.4.4
 tzdata==2024.1
+sqlite_backup

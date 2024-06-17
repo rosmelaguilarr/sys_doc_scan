@@ -29,5 +29,10 @@ class Document(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    class Meta:
+        # db_table = "Document"
+        verbose_name = "Document"
+        verbose_name_plural = "Documents"
+
     def __str__(self):
-        return f'{self.doctype} by {self.user.username} - {self.fileupload}' 
+        return f'{self.fileupload}'

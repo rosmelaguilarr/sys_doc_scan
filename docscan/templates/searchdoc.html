@@ -86,26 +86,42 @@
                                     {% if user_groups %}
                                         {% for group in user_groups %}
                                             {% if group.name == 'Operador' %}
-                                                <a class="btn btn-outline-primary btn-sm" href="{% url 'previewdoc' doc_id=document.pk %}" target="_blank" title="Visualizar">
-                                                    <i class="bi bi-search"></i>
-                                                </a>
+                                                {% if document.file_exists %}
+                                                    <a class="btn btn-outline-primary btn-sm" href="{% url 'previewdoc' doc_id=document.pk %}" target="_blank" title="Visualizar">
+                                                        <i class="bi bi-search"></i>
+                                                    </a>
+                                                {% else %}
+                                                    <a class="btn btn-outline-primary btn-sm disabled" href="#" title="Archivo no encontrado">
+                                                        <i class="bi bi-search"></i>
+                                                    </a>
+                                                {% endif %}
                                             {% else %}
-                                                <a class="btn btn-outline-primary btn-sm" href=" {% url 'updatedoc' document.id %} ">
-                                                    <i class="bi bi-pencil-fill" title="Editar"></i>
-                                                </a>
-                    
-                                                <a class="btn btn-outline-danger btn-sm btn-delete mx-1" href=" {% url 'deletedoc' document.id %}" title="Eliminar">
-                                                    <i class="bi bi-trash-fill"></i>
-                                                </a>
-
-                                                <a class="btn btn-outline-primary btn-sm" href="{% url 'previewdoc' doc_id=document.pk %}" target="_blank" title="Visualizar">
-                                                    <i class="bi bi-search"></i>
-                                                </a>
+                                                {% if document.file_exists %}
+                                                    <a class="btn btn-outline-primary btn-sm" href="{% url 'updatedoc' document.id %}">
+                                                        <i class="bi bi-pencil-fill" title="Editar"></i>
+                                                    </a>
+                                                    <a class="btn btn-outline-danger btn-sm btn-delete mx-1" href="{% url 'deletedoc' document.id %}" title="Eliminar">
+                                                        <i class="bi bi-trash-fill"></i>
+                                                    </a>
+                                                    <a class="btn btn-outline-primary btn-sm" href="{% url 'previewdoc' doc_id=document.pk %}" target="_blank" title="Visualizar">
+                                                        <i class="bi bi-search"></i>
+                                                    </a>
+                                                {% else %}
+                                                    <a class="btn btn-outline-primary btn-sm disabled" href="#" title="Archivo no encontrado">
+                                                        <i class="bi bi-pencil-fill"></i>
+                                                    </a>
+                                                    <a class="btn btn-outline-danger btn-sm btn-delete mx-1 disabled" href="#" title="Archivo no encontrado">
+                                                        <i class="bi bi-trash-fill"></i>
+                                                    </a>
+                                                    <a class="btn btn-outline-primary btn-sm disabled" href="#" title="Archivo no encontrado">
+                                                        <i class="bi bi-search"></i>
+                                                    </a>
+                                                {% endif %}
                                             {% endif %}
                                         {% endfor %}
                                     {% endif %}
-
                                 </td>
+                                
                                 <td>
                                     <span class="d-inline-block text-truncate" style="max-width: 180px;">
                                         {% with file_path=document.fileupload %}

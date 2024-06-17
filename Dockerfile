@@ -8,14 +8,14 @@ RUN apk update && apk add --no-cache \
     gcc \
     musl-dev \
     libffi-dev \
-    postgresql-dev \
-    jpeg-dev \
-    zlib-dev \
-    build-base \
     python3-dev \
-    py3-psycopg2 \
-    linux-headers \
-    sqlite
+    sqlite\
+    build-base \
+    linux-headers 
+    # postgresql-dev \
+    # jpeg-dev \
+    # zlib-dev \
+    # py3-psycopg2 \
 
 WORKDIR /app
 

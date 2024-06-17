@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.contrib import messages
 from django.core.paginator import Paginator
 import os
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 import mimetypes
 
 
@@ -33,8 +33,9 @@ def signin(request):
             else:
                 form.add_error(None, 'Usuario o contraseña incorrecto')
     else:
-        form = AuthenticationForm(initial={'username': request.POST.get('username', '')})
-    
+        form = AuthenticationForm(
+            initial={'username': request.POST.get('username', '')})
+
     return render(request, 'signin.html', {'form': form})
 
 
@@ -42,6 +43,7 @@ def signin(request):
 def signout(request):
     logout(request)
     return redirect('home')
+
 
 @login_required
 @permission_required('docscan.add_document', raise_exception=True)
@@ -54,19 +56,9 @@ def registerdoc(request):
             return redirect(reverse('registerdoc') + '?ok')
     else:
         form = DocumentForm()
-    
-    # directions = Direction.objects.all()
-    # origins = Origin.objects.all()
-
-    # origin_options = [
-    #     {'value': origin.id, 'name': origin.name, 'direction_id': origin.direction_id}
-    #     for origin in origins
-    # ]
 
     return render(request, 'registerdoc.html', {
         'form': form,
-        # 'directions': directions,
-        # 'origin_options': origin_options,
     })
 
 
@@ -74,7 +66,6 @@ def registerdoc(request):
 def searchdoc(request):
     user_groups = request.user.groups.all()
     doctypes = DocType.objects.all()
-    # origins = Origin.objects.all()
     directions = Direction.objects.all()
 
     dateregister = request.GET.get('date_search', '')
@@ -98,18 +89,21 @@ def searchdoc(request):
     search_filters = request.session.get('search_filters', {})
 
     if search_filters:
-        list_docs = Document.objects.order_by('dateregister').filter(description__icontains=description,
-                                            doctype__id__icontains=doctype,
-                                            dateregister__icontains=dateregister,
-                                            direction__id__icontains=direction,
-                                            origin__icontains=origin,
-                                            # user=request.user
-                                            )
+        list_docs = Document.objects.order_by('-created').filter(description__icontains=description,
+                                                                 doctype__id__icontains=doctype,
+                                                                 dateregister__icontains=dateregister,
+                                                                 direction__id__icontains=direction,
+                                                                 origin__icontains=origin,
+                                                                 )
     else:
         list_docs = Document.objects.all()
-        # list_docs = Document.objects.filter(user=request.user)
 
-    paginator = Paginator(list_docs, 10)
+    documents = []
+    for document in list_docs:
+        document.file_exists = os.path.exists(document.fileupload.path)
+        documents.append(document)
+
+    paginator = Paginator(documents, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -117,7 +111,6 @@ def searchdoc(request):
         'page_obj': page_obj,
         'paginator': paginator,
         'doctypes': doctypes,
-        # 'origins': origins,
         'directions': directions,
         'user_groups': user_groups,
 
@@ -128,21 +121,21 @@ def searchdoc(request):
 
 @login_required
 @permission_required('docscan.change_document', raise_exception=True)
-
 def updatedoc(request, doc_id):
     document = get_object_or_404(Document, pk=doc_id)
 
     if request.method == 'GET':
         formatted_dateregister = document.dateregister.strftime('%Y-%m-%d')
-        
-        form = DocumentForm(instance=document, initial={'dateregister': formatted_dateregister})
-        
+
+        form = DocumentForm(instance=document, initial={
+                            'dateregister': formatted_dateregister})
+
         return render(request, 'updatedoc.html',
-                    {'document': document,
-                    'form': form,
-                    
-                    })
-    
+                      {'document': document,
+                       'form': form,
+
+                       })
+
     else:
         try:
             document = get_object_or_404(
@@ -154,10 +147,11 @@ def updatedoc(request, doc_id):
                 document.fileupload = request.FILES['fileupload']
 
             document.dateregister = request.POST["dateregister"]
-            document.doctype= DocType.objects.get(pk=request.POST["doctype"])
+            document.doctype = DocType.objects.get(pk=request.POST["doctype"])
             document.description = request.POST["description"]
             document.folios = request.POST["folios"]
-            document.direction = Direction.objects.get(pk=request.POST["direction"])
+            document.direction = Direction.objects.get(
+                pk=request.POST["direction"])
             document.origin = request.POST["origin"]
 
             document.save()
@@ -176,10 +170,12 @@ def updatedoc(request, doc_id):
 
 @login_required
 @permission_required('docscan.delete_document', raise_exception=True)
-
 def deletedoc(request, doc_id):
-    document = get_object_or_404(
-        Document, pk=doc_id)
+    document = get_object_or_404(Document, pk=doc_id)
+    file_path = document.fileupload.path
+
+    if not os.path.exists(file_path):
+        raise Http404("El archivo no existe")
 
     if len(document.fileupload) > 0:
         os.remove(document.fileupload.path)
@@ -191,9 +187,12 @@ def deletedoc(request, doc_id):
 
 @login_required
 def previewdoc(request, doc_id):
-
     document = get_object_or_404(Document, pk=doc_id)
     pdf_path = document.fileupload.path
+
+    if not os.path.exists(pdf_path):
+        raise Http404("El archivo no existe")
+
     with open(pdf_path, 'rb') as pdf_file:
         pdf_content = pdf_file.read()
 
@@ -206,8 +205,10 @@ def previewdoc(request, doc_id):
         os.path.basename(pdf_path))
     return response
 
+
 def error_404(request, exception):
     return render(request, '404.html', {})
+
 
 def error_403(request, exception):
     return render(request, '403.html', status=403)

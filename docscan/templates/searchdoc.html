@@ -28,11 +28,6 @@
                     
                 </div>
                 <div class="mb-3">
-                    <label for="origin_search">Origen:</label>
-                    <input type="text" name="origin_search" id="origin_search" 
-                    class="form-control" value="{{ request.GET.origin_search }}">
-                </div>
-                <div class="mb-3">
                     <label for="date_search">Fecha:</label>
                     <input type="date" name="date_search" id="date_search" 
                     class="form-control" value="{{ request.GET.date_search }}">
@@ -40,9 +35,14 @@
                 <div class="mb-3">
                     <label for="name_search">Descripción:</label>
                     <input type="text" name="name_search" id="name_search" 
-                    class="form-control" value="{{ request.GET.name_search }}" style="max-width: 200px;">
+                    class="form-control" value="{{ request.GET.name_search }}" style="max-width: 150px;">
                 </div>
-                <div>
+                <div class="mb-3">
+                    <label for="codigo_search">Código:</label>
+                    <input type="text" name="codigo_search" id="codigo_search" 
+                    class="form-control" value="{{ request.GET.codigo_search }}" style="max-width: 150px;">
+                </div>
+                <div class="mt-2">
                     <button class="btn btn-primary" title="Buscar">
                         <i class="bi bi-search mx-1" style="font-size: 1rem;"></i>
                         Buscar
@@ -74,9 +74,9 @@
                         <th scope="col">Nombre</th>
                         <th scope="col">Documento</th>
                         <th scope="col">Dirección</th>
-                        <th scope="col">Orígen</th>
+                        {% comment %} <th scope="col">Orígen</th> {% endcomment %}
                         <th scope="col">Fecha</th>
-                        <th scope="col">Usuario</th>
+                        <th scope="col">Código</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -141,16 +141,16 @@
                                     {{ document.direction }} 
                                     </span>
                                 </td>
-                                <td> 
+                                {% comment %} <td> 
                                     <span class="d-inline-block text-truncate" style="max-width: 180px;">
                                         {{ document.origin }} 
                                     </span>
-                                </td>
+                                </td> {% endcomment %}
                                 <td> 
                                     {{ document.dateregister|date:"d/m/Y" }}
                                 </td>
                                 <td> 
-                                    {{ document.user.username }}
+                                    {{ document.id }}
                                 </td>
                             </tr>
                             {% empty %}

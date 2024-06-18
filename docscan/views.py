@@ -70,16 +70,16 @@ def searchdoc(request):
 
     dateregister = request.GET.get('date_search', '')
     doctype = request.GET.get('doctype_search', '')
-    origin = request.GET.get('origin_search', '')
+    id = request.GET.get('codigo_search', '')
     direction = request.GET.get('direction_search', '')
     description = request.GET.get('name_search', '')
 
-    if any([dateregister, doctype, direction, origin, description]):
+    if any([dateregister, doctype, direction, id, description]):
         search_filters = {
             'dateregister': dateregister,
             'doctype': doctype,
             'direction': direction,
-            'origin': origin,
+            'id': id,
             'description': description,
         }
         request.session['search_filters'] = search_filters
@@ -89,20 +89,20 @@ def searchdoc(request):
     search_filters = request.session.get('search_filters', {})
 
     if search_filters:
-        list_docs = Document.objects.order_by('-created').filter(description__icontains=description,
+        list_docs = Document.objects.order_by('-id').filter(description__icontains=description,
                                                                  doctype__id__icontains=doctype,
                                                                  dateregister__icontains=dateregister,
                                                                  direction__id__icontains=direction,
-                                                                 origin__icontains=origin,
+                                                                 id__icontains=id,
                                                                  )
     else:
-        list_docs = Document.objects.all()
+        list_docs = Document.objects.all().order_by('-id')
 
     documents = []
     for document in list_docs:
         document.file_exists = os.path.exists(document.fileupload.path)
         documents.append(document)
-
+    
     paginator = Paginator(documents, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)

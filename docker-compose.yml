@@ -1,5 +1,17 @@
-# docker-compose.yml
+
 services:
+  db:
+    image: postgres:13
+    container_name: ctn-sds-postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+
   django:
     build:
       context: .
@@ -8,10 +20,10 @@ services:
     volumes:
       - static_volume:/app/static
       - media_volume:/app/uploads
-      - ./db.sqlite3:/app/db.sqlite3
-      - backups:/app/backups
     env_file:
       - .env
+    depends_on:
+      - db
 
   nginx:
     build:
@@ -29,4 +41,4 @@ services:
 volumes:
   static_volume:
   media_volume:
-  backups:
+  postgres_data:

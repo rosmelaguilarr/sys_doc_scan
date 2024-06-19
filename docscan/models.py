@@ -33,16 +33,21 @@ class Document(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    # 
     def save(self, *args, **kwargs):
-        if not self.id:  # Check if the ID is not yet set (new instance)
+        if not self.id: 
             current_year = datetime.date.today().year % 100
-            sequential_number = Document.objects.count() + 1
-            id_format = f"{current_year:02d}D{sequential_number:06d}"
-            self.id = id_format
+
+            last_document = Document.objects.order_by('-id').first()
+
+            if last_document:
+                last_number = int(last_document.id[3:9])
+                new_number = last_number + 1
+            else:
+                new_number = 1
+
+            self.id = f"{current_year:02d}D{new_number:06d}"
 
         super().save(*args, **kwargs)
-    # 
 
     class Meta:
         # db_table = "Document"

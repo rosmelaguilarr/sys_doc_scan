@@ -9,13 +9,9 @@ RUN apk update && apk add --no-cache \
     musl-dev \
     libffi-dev \
     python3-dev \
-    sqlite\
     build-base \
-    linux-headers 
-    # postgresql-dev \
-    # jpeg-dev \
-    # zlib-dev \
-    # py3-psycopg2 \
+    linux-headers \
+    postgresql-dev
 
 WORKDIR /app
 
